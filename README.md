@@ -1,6 +1,6 @@
 # Telegram-Openai-Bot
 1. install docker
-2. cd telegram-openai-bot-pro
+2. cd Telegram-Openai-Bot
 3. chmod +x start.sh
 4. ./start.sh
 5. When prompted, enter your `TELEGRAM_API_TOKEN` and `OPENAI_API_KEY`.
