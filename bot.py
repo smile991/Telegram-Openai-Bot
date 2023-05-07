@@ -12,7 +12,7 @@ def start(update: Update, context: CallbackContext) -> None:
 
 def chat(update: Update, context: CallbackContext) -> None:
     user_text = update.message.text
-    model_engine = "gpt-4"
+    model_engine = "gpt-3.5-turbo"
 
     # 向 OpenAI API 发送请求
     response = openai.ChatCompletion.create(
