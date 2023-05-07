@@ -5,4 +5,4 @@
 4. ./start.sh
 5. When prompted, enter your `TELEGRAM_API_TOKEN` and `OPENAI_API_KEY`.
 
-The default openai model in the program is GPT-4.
+The default openai model in the program is gpt-3.5-turbo.
