@@ -1,42 +1,63 @@
-import os
+import requests
 import openai
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import time
+from python_telegram_bot import Updater, CommandHandler, MessageHandler, Filters
 
-# 设置您的 API 密钥
-openai.api_key = os.getenv("OPENAI_API_KEY")
-TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
+# 1. 设置和获取 API keys
+GOOGLE_API_KEY = "your_google_api_key"
+GOOGLE_CSE_ID = "your_google_cse_id"
+OPENAI_API_KEY = "your_openai_api_key"
+TELEGRAM_BOT_TOKEN = "your_telegram_bot_token"
 
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text("Hello! I'm your AI assistant. Just type your question or message and I'll help you.")
+openai.api_key = OPENAI_API_KEY
 
-def chat(update: Update, context: CallbackContext) -> None:
-    user_text = update.message.text
-    model_engine = "gpt-3.5-turbo"
+# 2. 创建一个用于搜索的函数
+def search_google(query):
+    url = f"https://www.googleapis.com/customsearch/v1?cx={GOOGLE_CSE_ID}&q={query}&key={GOOGLE_API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+    try:
+        results = data['items']
+        return results
+    except KeyError:
+        return []
 
-    # 向 OpenAI API 发送请求
-    response = openai.ChatCompletion.create(
-        model=model_engine,
-        messages=[
-            {"role": "user", "content": user_text}
-        ],
-    )
+# 3. 创建一个用于生成文本的函数
+def generate_text(prompt):
+    response = openai.Completion.create(engine="text-davinci-002", prompt=prompt, max_tokens=60)
+    generated_text = response.choices[0].text.strip()
+    return generated_text
 
-    # 获取并发送回复
-    reply = response.choices[0].message["content"].strip()
-    update.message.reply_text(reply)
+# Telegram 机器人的消息处理
+def handle_message(update, context):
+    text = update.message.text
+    # 使用 OpenAI 提取关键词
+    keywords = generate_text(text)
+    # 使用 Google 搜索关键词
+    search_results = search_google(keywords)
+    # 如果有搜索结果
+    if search_results:
+        # 使用前三个搜索结果作为提示发送给 OpenAI API
+        for result in search_results[:3]:
+            title = result['title']
+            snippet = result['snippet']
+            prompt = f"{title}. {snippet}"
+            generated_text = generate_text(prompt)
+            # 发送生成的文本
+            update.message.reply_text(generated_text)
+            # 等待3秒
+            time.sleep(3)
+    else:
+        update.message.reply_text("No results found")
 
-def main() -> None:
-    updater = Updater(TELEGRAM_API_TOKEN)
-
-    # 注册处理程序
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, chat))
-
-    # 启动机器人
+# 创建 Telegram 机器人
+def main():
+    updater = Updater(token=TELEGRAM_BOT_TOKEN, use_context=True)
+    dp = updater.dispatcher
+    dp.add_handler(MessageHandler(Filters.text & (~Filters.command), handle_message))
     updater.start_polling()
     updater.idle()
 
 if __name__ == "__main__":
     main()
+
