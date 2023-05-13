@@ -3,7 +3,7 @@ import openai
 import time
 from python_telegram_bot import Updater, CommandHandler, MessageHandler, Filters
 
-# 1. 设置和获取 API keys
+# 设置和获取 API keys
 GOOGLE_API_KEY = "your_google_api_key"
 GOOGLE_CSE_ID = "your_google_cse_id"
 OPENAI_API_KEY = "your_openai_api_key"
@@ -11,7 +11,7 @@ TELEGRAM_BOT_TOKEN = "your_telegram_bot_token"
 
 openai.api_key = OPENAI_API_KEY
 
-# 2. 创建一个用于搜索的函数
+# 创建一个用于搜索的函数
 def search_google(query):
     url = f"https://www.googleapis.com/customsearch/v1?cx={GOOGLE_CSE_ID}&q={query}&key={GOOGLE_API_KEY}"
     response = requests.get(url)
@@ -22,7 +22,7 @@ def search_google(query):
     except KeyError:
         return []
 
-# 3. 创建一个用于生成文本的函数
+# 创建一个用于生成文本的函数
 def generate_text(prompt):
     response = openai.Completion.create(engine="text-davinci-002", prompt=prompt, max_tokens=60)
     generated_text = response.choices[0].text.strip()
