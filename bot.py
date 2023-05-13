@@ -24,7 +24,7 @@ def search_google(query):
 
 # 创建一个用于生成文本的函数
 def generate_text(prompt):
-    response = openai.Completion.create(engine="text-davinci-002", prompt=prompt, max_tokens=60)
+    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, max_tokens=60)
     generated_text = response.choices[0].text.strip()
     return generated_text
 
